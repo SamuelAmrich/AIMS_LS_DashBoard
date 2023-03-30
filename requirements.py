@@ -17,6 +17,7 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 import plotly.express as px
+import plotly.figure_factory as ff
 from dash.dependencies import Input, Output
 from plotly.tools import mpl_to_plotly
 
