@@ -9,6 +9,7 @@
 # Zvacsenie okien prostredia - Odstránit v produkcii
 
 from IPython.core.display import display, HTML
+import datetime
 
 display(HTML("<style>.container { width:98% !important; }</style>"))
 
@@ -276,7 +277,31 @@ blok_2_2 = [
 # In[14]:
 
 
-app.layout = html.Div(
+app.layout = html.Div([  # zakladny DIV v ktorom su 4 podDIVy - TIMER, PAGE 1, PAGE 2, PAGE 3
+
+
+    # TIMER - to bude neviditelny blok (iba na test, potom prepisat "display":  "none",)
+
+    html.Div([
+        html.Div(id='latest-timestamp', style={"padding": "20px"}),
+        dcc.Interval(
+            id='interval-component2',
+            interval=5 * 1000,  # alebo prepisat na  - interval=Dash_Interval,
+            # n_intervals=0
+        )
+    ], id="timer",
+    style={
+        "display":  "block",
+        "background": uplne_pozadie,
+        "color": text_colour,
+        "height": "5vh",
+        "width": "100vw"
+    }),
+
+
+# PAGE 1 layouut - viditelny hned pri spusteni
+
+    html.Div(
     [
         dcc.Interval(
             id='interval-component',
@@ -383,15 +408,74 @@ app.layout = html.Div(
             align="center",
             justify="evenly",
         )
-    ],
+    ], id="page1",
     style={
+        "display":  "block",
         "background": uplne_pozadie,
         "height": "100vh",
         "width": "100vw"
-    })
+    }),
+
+# PAGE 2 .. upravit podla potreby
+html.Div([
+    html.H1("PAGE2"),
+    html.H1("Upravit podla potreby... Text , video, info, graphs, etc."),
+
+], id='page2', style={'display': 'none',
+                      "background": uplne_pozadie,
+                      "height": "100vh",
+                      "color": text_colour,
+                      "width": "100vw"}),
+
+# PAGE 3 .. upravit podla potreby
+html.Div([
+    html.H1("PAGE3"),
+    dcc.Graph(id='graph3', style={'display': 'none'}),
+    html.H1("Upravit podla potreby")
+
+], id='page3', style={'display': 'none',
+                      "background": uplne_pozadie,
+                      "height": "100vh",
+                      "color": text_colour,
+                      "width": "100vw"})
+
+# koniec zakladneho DIVu
+
+],id='container',
+style={
+        "background": uplne_pozadie,
+        "color": text_colour,
+        "height": "100vh",
+        "width": "100vw"}
+)
+
+# update DIVov podla timera
+
+@app.callback(
+    [Output(component_id='latest-timestamp', component_property='children'),
+     Output(component_id='page1', component_property='style'),
+     Output(component_id='page2', component_property='style'),
+     Output(component_id='page3', component_property='style'),
+     Output('interval-component2', 'n_intervals'),
+     ],
+    [Input('interval-component2', 'n_intervals')]
+)
+def update_timestamp(n):
+    if n % 3 == 1:
+        return [html.Span(f"{n}counts - active page :1 Last updated: {datetime.datetime.now()}")], {
+            'display': 'block'}, {'display': 'none'}, {'display': 'none'}, n
+    elif n % 3 == 2:
+        return [html.Span(f"{n}counts - active page :2 Last updated: {datetime.datetime.now()}")], {
+            'display': 'none'}, {'display': 'block'}, {'display': 'none'}, n
+    else:
+        return [html.Span(f"{n}counts - active page :3 Last updated: {datetime.datetime.now()}")], {
+            'display': 'none'}, {'display': 'none'}, {'display': 'block'}, n
 
 
-# # Delené funkcie
+
+
+
+    # # Delené funkcie
 # Vytvorenie callback-u na obnovu DASH-u. Funkcie ktoré načítajú parquet a vytvoria grafiky, obrázky, grafy a texty. 
 
 # In[15]:
